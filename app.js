@@ -2,7 +2,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebas
 import { getFirestore, collection, getDocs, setDoc, doc, addDoc, query, where, orderBy, onSnapshot, getDoc, serverTimestamp, deleteDoc, updateDoc, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig = {
-    apiKey: "AIzaSyBndD87Ee0_jnvQOr4Dr-HnRxUy0k7gviM",
+    apiKey: "AIzaSyBiCzv28fmnVFfiWWkQesWYs5IbrBQYApI",
     authDomain: "pietians.firebaseapp.com",
     projectId: "pietians",
     storageBucket: "pietians.firebasestorage.app",
