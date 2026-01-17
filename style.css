@@ -1,0 +1,151 @@
+body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background-color: #f0f2f5;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+}
+
+.container {
+    background: white;
+    padding: 30px;
+    border-radius: 25px; /* Pinterest style rounded corners */
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05); /* Softer shadow */
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+}
+
+h1 { color: #007bff; font-weight: 800; }
+
+input {
+    width: 100%;
+    padding: 12px;
+    margin: 10px 0;
+    border: 1px solid #eee; /* Lighter border */
+    border-radius: 12px; /* Rounded inputs */
+    box-sizing: border-box;
+    background: #f9f9f9;
+}
+
+button {
+    width: 100%;
+    padding: 12px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 12px; /* Pinterest style buttons */
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+button:hover { 
+    background-color: #0056b3; 
+    transform: translateY(-2px); /* Slight lift on hover */
+}
+
+/* --- ADDED FOR PINTEREST LOOK & PROFILE CLICK --- */
+
+.user-card {
+    background: #fff;
+    border-left: 5px solid #007bff;
+    padding: 15px;
+    margin-top: 15px;
+    text-align: left;
+    border-radius: 15px; /* Rounded Cards */
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    transition: 0.3s;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+.user-card:hover {
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    transform: scale(1.02);
+}
+
+/* Modal Styling for Pinterest Effect */
+#profile-modal, #edit-profile-modal {
+    backdrop-filter: blur(8px); /* Blur background like Pinterest */
+}
+
+.modal-content {
+    background: white;
+    border-radius: 30px;
+    padding: 25px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+}
+
+/* Chat Bubbles Style */
+.msg-bubble {
+    padding: 10px 15px;
+    border-radius: 20px;
+    margin-bottom: 5px;
+    max-width: 80%;
+    font-size: 0.9em;
+}
+
+/* Notification Dot Animation */
+#nav-notify-dot {
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.3); opacity: 0.7; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+/* --- WHATSAPP STYLE TOAST ANIMATIONS --- */
+@keyframes slideDown {
+    from { 
+        top: -100px; 
+        opacity: 0; 
+        transform: translateX(-50%) scale(0.9); 
+    }
+    to { 
+        top: 20px; 
+        opacity: 1; 
+        transform: translateX(-50%) scale(1); 
+    }
+}
+
+@keyframes slideUp {
+    from { 
+        top: 20px; 
+        opacity: 1; 
+        transform: translateX(-50%) scale(1); 
+    }
+    to { 
+        top: -100px; 
+        opacity: 0; 
+        transform: translateX(-50%) scale(0.9); 
+    }
+}
+
+/* Hover effect for the notification toast itself */
+#notification-container div:hover {
+    background-color: #fcfcfc !important;
+    transform: translateX(-50%) translateY(2px) !important;
+    transition: 0.2s;
+}/* Input focus effect */
+input:focus {
+    border-color: #007bff !important;
+    background: #fff !important;
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(0,123,255,0.1);
+}
+
+/* Auth container animation */
+.auth-container {
+    animation: fadeIn 0.5s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}

@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pietians Connect | Professional</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&display=swap" rel="stylesheet">
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script type="text/javascript">
+       (function(){ emailjs.init("vvGr1JHSGTKma9Tcp"); })();
+    </script>
+    <style>
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: #f0f2f5; 
+            margin: 0; 
+            height: 100vh;
+            display: flex;
+            overflow: hidden;
+        }
+
+        /* --- Full Screen Layout --- */
+        .app-wrapper {
+            display: flex;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* --- Sidebar Style --- */
+        .sidebar {
+            width: 320px;
+            background: #ffffff;
+            border-right: 1px solid #e0e0e0;
+            display: flex;
+            flex-direction: column;
+            padding: 0; 
+            box-shadow: 2px 0 10px rgba(0,0,0,0.02);
+            z-index: 10;
+        }
+
+        /* --- Self Profile Section in Sidebar --- */
+        .sidebar-user-profile {
+            padding: 30px 20px;
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            color: white;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .sidebar-avatar {
+            width: 70px;
+            height: 70px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            margin: 0 auto 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            border: 2px solid rgba(255,255,255,0.4);
+        }
+
+        .nav-links-container {
+            padding: 20px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* --- Main Content Area --- */
+        .main-content {
+            flex: 1;
+            background: #f8fafc;
+            padding: 30px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* --- Pinterest Look Cards --- */
+        .user-card { 
+            transition: all 0.3s ease; 
+            border: 1px solid #f0f0f0 !important; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03); 
+            border-radius: 20px !important; 
+            margin-bottom: 20px;
+            background: white;
+            padding: 20px;
+        }
+        
+        .user-card:hover { 
+            transform: translateY(-3px); 
+            box-shadow: 0 12px 25px rgba(0,0,0,0.08); 
+        }
+
+        /* --- Side Buttons --- */
+        .nav-btn {
+            width: 100%;
+            text-align: left;
+            padding: 15px 20px;
+            margin-bottom: 10px;
+            border-radius: 15px;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: transparent;
+            color: #444;
+            border: none;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .nav-btn.active {
+            background: #e8f0fe;
+            color: #007bff !important;
+            font-weight: 600;
+        }
+
+        .nav-btn:hover:not(.active) {
+            background: #f0f2f5;
+        }
+
+        /* --- Profile Image Placeholder --- */
+        .profile-circle {
+            width: 50px;
+            height: 50px;
+            background: #e8f0fe;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        /* --- Search Bar Upgraded Logic --- */
+        input { 
+            border-radius: 12px !important; 
+            border: 1px solid #e2e8f0; 
+            padding: 12px 18px !important; 
+            background: #fff;
+            width: 100%;
+            box-sizing: border-box;
+            margin-bottom: 15px;
+            font-size: 0.95rem;
+        }
+
+        /* --- Input Labels Style --- */
+        .input-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #4a5568;
+            margin-bottom: 5px;
+            display: block;
+            margin-left: 4px;
+        }
+
+        /* --- Added for Full Length Search --- */
+        #search-bar {
+            width: 100% !important;
+            padding: 15px 25px !important;
+            border-radius: 30px !important;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        @keyframes slideDown {
+            from { top: -100px; opacity: 0; transform: translateX(-50%); }
+            to { top: 20px; opacity: 1; transform: translateX(-50%); }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 59, 48, 0.5); }
+            70% { transform: scale(1.2); box-shadow: 0 0 0 8px rgba(255, 59, 48, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 59, 48, 0); }
+        }
+
+        .auth-container {
+            max-width: 400px;
+            margin: auto;
+            background: white;
+            padding: 40px;
+            border-radius: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.05);
+        }
+    </style>
+</head>
+<body>
+    <div id="notification-container" style="position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 10000; width: 90%; max-width: 400px; pointer-events: none;"></div>
+
+    <div id="app-root" class="app-wrapper">
+        
+        <nav id="app-sidebar" class="sidebar" style="display:none;">
+            <div class="sidebar-user-profile">
+                <div class="sidebar-avatar">👤</div>
+                <h3 id="my-profile-name" style="margin: 0; font-size: 1.1rem; font-weight: 600;">Loading...</h3>
+                <p id="my-profile-dept" style="margin: 4px 0 0; font-size: 0.85rem; opacity: 0.9;">Department</p>
+            </div>
+
+            <div class="nav-links-container">
+                <button onclick="showSearch()" id="btn-search" class="nav-btn active">
+                    <span>🔍</span> Find Peers
+                </button>
+                
+                <button onclick="loadInbox()" id="btn-inbox" class="nav-btn" style="position: relative;">
+                    <span>💬</span> Chats 
+                    <span id="nav-notify-dot" style="display:none; position: absolute; top: 12px; right: 20px; background: #ff3b30; width: 10px; height: 10px; border-radius: 50%; border: 2px solid white; animation: pulse 1.5s infinite;"></span>
+                </button>
+
+                <div style="margin-top: auto; border-top: 1px solid #f0f0f0; padding-top: 20px;">
+                    <button onclick="openEditProfile()" class="nav-btn"><span>⚙️</span> Settings</button>
+                    <button onclick="logout()" class="nav-btn" style="color: #ff3b30;"><span>🚪</span> Logout</button>
+                </div>
+            </div>
+        </nav>
+
+        <main class="main-content">
+            
+            <div id="login-section" class="auth-container">
+                <h1 style="color: #007bff; font-size: 2em; text-align:center;">Login</h1>
+                <p style="color: #666; text-align:center;">Connect with your college mates.</p>
+                <label class="input-label">College Email</label>
+                <input type="email" id="login-email" placeholder="enter your register email">
+                <button onclick="handleLogin()" style="background: #007bff; color: white; width: 100%; border-radius: 12px; padding: 14px; border:none; cursor:pointer; font-weight:600;">Login to Account</button>
+                <p style="margin-top:15px; font-size:0.9em; text-align: center;">
+                    New here? <a href="javascript:void(0)" onclick="showSignup()" style="color:#007bff; font-weight:bold; text-decoration: none;">Create Account</a>
+                </p>
+            </div>
+
+            <div id="auth-section" class="auth-container" style="display:none;">
+                <h1 style="text-align: center;">📝 Sign Up</h1>
+                <label class="input-label">College Email</label>
+                <input type="email" id="email" placeholder="enter your college email">
+                <button id="send-btn" onclick="triggerAuthFlow()" style="background: #007bff; color: white; width: 100%; border-radius: 12px; padding: 14px; border:none; cursor:pointer; font-weight: 600;">Send Code</button>
+                
+                <div id="otp-group" style="display:none; margin-top:20px;">
+                    <div id="expiry-timer-box" style="text-align: center; background: #fff5f5; padding: 8px; border-radius: 10px; margin-bottom: 15px; border: 1px solid #feb2b2;">
+                        <span style="font-size: 0.85rem; color: #c53030; font-weight: 600;">
+                            ⏳ Code expires in: <span id="expiry-seconds">60</span>s
+                        </span>
+                    </div>
+
+                    <label class="input-label">Verification Code</label>
+                    <input type="text" id="otp-input" placeholder="Enter 4-digit OTP">
+                    <button onclick="verifyOTP()" style="background: #28a745; color: white; width: 100%; border-radius: 12px; padding: 14px; border:none; cursor:pointer; font-weight: 600;">Verify</button>
+                    
+                    <p style="text-align: center; margin-top: 15px; font-size: 0.85rem; color: #666;">
+                        Didn't get the code? 
+                        <span id="resend-container">
+                            <a href="javascript:void(0)" id="resend-link" onclick="triggerAuthFlow()" style="color: #007bff; text-decoration: none; font-weight: 600;">Resend</a>
+                        </span>
+                        <span id="timer-text" style="display:none; font-weight: 600; color: #718096;">Wait <span id="seconds">30</span>s</span>
+                    </p>
+                </div>
+
+                <div style="margin-top: 25px; border-top: 1px solid #eee; padding-top: 15px; text-align: center;">
+                    <a href="javascript:void(0)" onclick="backToLogin()" style="color: #718096; text-decoration: none; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 5px;">
+                        ← Back to Login
+                    </a>
+                </div>
+            </div>
+
+            <div id="info-section" class="auth-container" style="display:none; max-width: 450px;">
+                <div style="text-align: center; margin-bottom: 25px;">
+                    <span style="font-size: 2.5rem;">✨</span>
+                    <h1 style="margin: 10px 0 5px; color: #1a202c;">Profile Setup</h1>
+                    <p style="color: #718096; font-size: 0.9rem;">Finish setting up your account</p>
+                </div>
+                
+                <div style="display: flex; flex-direction: column; gap: 2px;">
+                    <label class="input-label">Full Name</label>
+                    <input type="text" id="user-name" placeholder="enter your name">
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div>
+                            <label class="input-label">Department</label>
+                            <input type="text" id="user-dept" placeholder="B.Tech,BCA,etc">
+                        </div>
+                         <div>
+                            <label class="input-label">Branch</label>
+                            <input type="text" id="user-branch-input" placeholder="AI,ML,DS">
+                        </div>
+                        <div>
+                            <label class="input-label">Semester</label>
+                            <input type="text" id="user-sem" placeholder="1">
+                        </div>
+                    </div>
+
+                    <label class="input-label">Skills (separated by commas)</label>
+                    <input type="text" id="user-skills" placeholder="Java, Python, UI Design,etc">
+                </div>
+
+                <button onclick="saveProfile()" style="background: linear-gradient(135deg, #007bff, #0056b3); color: white; width: 100%; border-radius: 15px; padding: 16px; border:none; cursor:pointer; font-weight:700; font-size: 1rem; margin-top: 15px; box-shadow: 0 4px 12px rgba(0,123,255,0.25);">
+                    Complete Profile 🚀
+                </button>
+            </div>
+
+            <div id="dashboard" style="display:none;">
+                <div id="search-section">
+                    <div style="max-width: 100%; margin: 0 auto;">
+                        <h2 style="margin-bottom: 20px; font-weight: 800;">Discover Pietians</h2>
+                        <input type="text" id="search-bar" placeholder="Search skills, names, or dept..." onkeyup="searchUsers()">
+                        <div id="users-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px;"></div>
+                    </div>
+                </div>
+
+                <div id="inbox-section" style="display:none;">
+                    <div style="max-width: 600px; margin: 0 auto;">
+                        <h2 style="margin-bottom: 20px; font-weight: 800;">📩 Your Conversations</h2>
+                        <div id="inbox-list"></div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div id="profile-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; z-index:11000; justify-content:center; align-items:center; backdrop-filter: blur(8px); background: rgba(0,0,0,0.2);">
+        <div style="background:white; padding:40px; border-radius:30px; width:350px; text-align:center;">
+            <div class="profile-circle" style="width:80px; height:80px; margin: 0 auto 15px; font-size: 2rem;">👤</div>
+            <h2 id="view-name">Name</h2>
+            <p id="view-email" style="color:#888; margin-bottom: 20px;"></p>
+            <div style="text-align:left; background: #f8fafc; padding: 20px; border-radius: 20px; font-size: 0.9rem;">
+                <b>Dept:</b> <span id="view-dept"></span><br>
+                <b>Branch:</b> <span id="view-branch"></span><br>
+                <b>Sem:</b> <span id="view-sem"></span><br>
+                <b>💡 Skills:</b> <span id="view-skills"></span>
+            </div>
+            <button id="start-chat-btn" style="background:#007bff; color:white; width:100%; padding:15px; margin-top:20px; font-weight:bold; border-radius:15px; border:none; cursor:pointer;">💬 Message Now</button>
+            <button onclick="closeProfile()" style="background:none; color:#aaa; width:100%; margin-top:10px; border:none; cursor:pointer;">Close</button>
+        </div>
+    </div>
+
+    <div id="edit-profile-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; z-index:11000; justify-content:center; align-items:center; backdrop-filter: blur(8px); background: rgba(0,0,0,0.2);">
+        <div style="background:white; padding:30px; border-radius:30px; width:340px; text-align:center;">
+            <h2 style="margin-top:0;">Update Profile</h2>
+            <input type="text" id="edit-name" disabled style="background:#f0f2f5;">
+            <input type="text" id="edit-dept" placeholder="Department">
+            <input type="text" id="edit-branch" placeholder="Branch">
+            <input type="text" id="edit-sem" placeholder="Semester">
+            <input type="text" id="edit-skills" placeholder="Skills">
+            <button onclick="updateProfile()" style="background:#28a745; color: white; width: 100%; padding: 12px; border-radius: 12px; border:none; cursor:pointer; font-weight:600;">Save Changes</button>
+            <button onclick="closeEditModal()" style="background:none; color: #888; width: 100%; margin-top: 10px; border:none; cursor:pointer;">Cancel</button>
+        </div>
+    </div>
+
+    <div id="chat-box" style="display:none; position:fixed; bottom:30px; right:30px; width:360px; height: 500px; background:white; border-radius:25px; box-shadow:0 15px 50px rgba(0,0,0,0.15); z-index: 9999; flex-direction: column; overflow: hidden;">
+        <div style="background:#007bff; color:white; padding:20px; display: flex; justify-content: space-between; align-items: center;">
+            <span id="chat-with-name" style="font-weight: 700;">💬 Chat</span>
+            <button onclick="closeChat()" style="background:rgba(255,255,255,0.2); color:white; border-radius: 50%; width: 30px; height: 30px; border:none; cursor:pointer;">×</button>
+        </div>
+        <div id="messages" style="flex:1; overflow-y:auto; padding:20px; display: flex; flex-direction: column; gap: 10px; background: #f8fafc;"></div>
+        
+        <div style="padding: 10px 20px; display: flex; gap: 15px; border-top: 1px solid #eee; background: white;">
+            <span onclick="addEmoji('😊')" style="cursor:pointer; font-size:1.2rem;">😊</span>
+            <span onclick="addEmoji('👍')" style="cursor:pointer; font-size:1.2rem;">👍</span>
+            <span onclick="addEmoji('🔥')" style="cursor:pointer; font-size:1.2rem;">🔥</span>
+        </div>
+
+        <div style="padding:15px; display: flex; gap: 10px; background: white;">
+            <input type="text" id="chat-input" placeholder="Type message..." style="margin:0; border: none !important; background: #f0f2f5; border-radius: 20px !important;">
+            <button onclick="sendMessage()" style="background:#007bff; color: white; width: 55px; height: 45px; border-radius: 50% !important; border:none; cursor:pointer;">🚀</button>
+        </div>
+    </div>
+
+    <script type="module" src="app.js"></script>
+    <script>
+        // Bridge function to connect HTML with app.js
+        window.triggerAuthFlow = function() {
+            if(typeof window.sendOTP === 'function') {
+                window.sendOTP();
+                window.startResendTimer();
+                window.startExpiryCountdown();
+            } else {
+                console.error("sendOTP not ready. Check if app.js is loaded.");
+            }
+        };
+
+        // 1-Minute OTP Expiry Timer
+        let expiryInterval;
+        window.startExpiryCountdown = function() {
+            clearInterval(expiryInterval);
+            let timeLeft = 60;
+            const display = document.getElementById('expiry-seconds');
+            const timerBox = document.getElementById('expiry-timer-box');
+            
+            timerBox.style.borderColor = "#feb2b2";
+            timerBox.style.background = "#fff5f5";
+
+            expiryInterval = setInterval(() => {
+                timeLeft--;
+                display.innerText = timeLeft;
+                if(timeLeft <= 0) {
+                    clearInterval(expiryInterval);
+                    display.innerText = "0";
+                    timerBox.style.background = "#ffdcdc";
+                    alert("OTP Expired! Please click Resend to get a new code.");
+                }
+            }, 1000);
+        };
+
+        // 30-Seconds Resend Cooldown
+        window.startResendTimer = function() {
+            const resendLink = document.getElementById('resend-link');
+            const timerText = document.getElementById('timer-text');
+            const secondsSpan = document.getElementById('seconds');
+            
+            resendLink.style.display = 'none';
+            timerText.style.display = 'inline';
+            
+            let timeLeft = 30;
+            const timer = setInterval(() => {
+                timeLeft--;
+                secondsSpan.innerText = timeLeft;
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    resendLink.style.display = 'inline';
+                    timerText.style.display = 'none';
+                    secondsSpan.innerText = 30;
+                }
+            }, 1000);
+        };
+
+        // General Navigation
+        window.showSearch = function() {
+            document.getElementById('search-section').style.display = 'block';
+            document.getElementById('inbox-section').style.display = 'none';
+            document.getElementById('btn-search').classList.add('active');
+            document.getElementById('btn-inbox').classList.remove('active');
+        };
+
+        window.loadInbox = function() {
+            document.getElementById('search-section').style.display = 'none';
+            document.getElementById('inbox-section').style.display = 'block';
+            document.getElementById('btn-search').classList.remove('active');
+            document.getElementById('btn-inbox').classList.add('active');
+        };
+
+        window.showSignup = function() {
+            document.getElementById('login-section').style.display = 'none';
+            document.getElementById('auth-section').style.display = 'block';
+        };
+
+        window.backToLogin = function() {
+            document.getElementById('auth-section').style.display = 'none';
+            document.getElementById('login-section').style.display = 'block';
+            document.getElementById('otp-group').style.display = 'none';
+            clearInterval(expiryInterval);
+        };
+
+        window.addEmoji = function(emoji) {
+            const input = document.getElementById('chat-input');
+            if(input) { input.value += emoji; input.focus(); }
+        };
+    </script>
+</body>
+</html>
