@@ -16,6 +16,7 @@ const db = getFirestore(app);
 
 let generatedOTP, currentUserEmail, chatWithEmail, unsubscribeChat;
 let otpExpiryTime = null; 
+let unreadMessagesCount = 0; // Naya counter variable
 
 // --- 1. SESSION CHECK & LIVE LISTENER ---
 window.onload = async function() {
@@ -35,7 +36,7 @@ window.onload = async function() {
     }
 }
 
-// --- 2. LIVE NOTIFICATION LOGIC ---
+// --- 2. LIVE NOTIFICATION LOGIC (UPDATED WITH BADGE COUNT) ---
 function listenForNewMessages() {
     const sessionStartTime = Date.now() - 5000; 
     const q = query(collection(db, "messages"), where("receiver", "==", currentUserEmail));
@@ -53,10 +54,11 @@ function listenForNewMessages() {
                 let msgTime = msg.timestamp?.toMillis ? msg.timestamp.toMillis() : Date.now();
 
                 if (msgTime > sessionStartTime) {
-                    const dot = document.getElementById('nav-notify-dot');
-                    if(dot) dot.style.display = 'block';
-
+                    // Update Badge Count
                     if (document.getElementById('chat-box').style.display === 'none' || chatWithEmail !== msg.sender) {
+                        unreadMessagesCount++;
+                        updateNotificationBadge(unreadMessagesCount);
+
                         const senderDoc = await getDoc(doc(db, "users", msg.sender));
                         const senderName = senderDoc.exists() ? senderDoc.data().name : "New Message";
                         showInAppNotification(senderName, msg.text, msg.sender);
@@ -67,6 +69,20 @@ function listenForNewMessages() {
     });
 }
 
+// Badge UI update karne ke liye function
+function updateNotificationBadge(count) {
+    const dot = document.getElementById('nav-notify-dot');
+    if(dot) {
+        if(count > 0) {
+            dot.style.display = 'flex';
+            dot.innerText = count > 9 ? '9+' : count;
+            dot.style.animation = 'pulse 1.5s infinite';
+        } else {
+            dot.style.display = 'none';
+        }
+    }
+}
+
 function showInAppNotification(senderName, text, senderEmail) {
     if (Notification.permission === "granted") new Notification(`💬 ${senderName}`, { body: text });
     const oldToast = document.querySelector('.whatsapp-toast');
@@ -74,11 +90,11 @@ function showInAppNotification(senderName, text, senderEmail) {
 
     const toast = document.createElement('div');
     toast.className = 'whatsapp-toast';
-    toast.style.cssText = `position: fixed; top: 25px; left: 50%; transform: translateX(-50%); background: white; padding: 12px 20px; border-radius: 25px; box-shadow: 0 15px 50px rgba(0,0,0,0.25); z-index: 2147483647; display: flex; align-items: center; gap: 15px; width: 320px; border-left: 6px solid #25D366; animation: slideDown 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards; cursor: pointer;`;
+    // Design matching your new attractive dashboard capsule style
+    toast.style.cssText = `position: fixed; top: 25px; left: 50%; transform: translateX(-50%); background: white; padding: 12px 25px; border-radius: 50px; box-shadow: 0 15px 40px rgba(0,0,0,0.15); z-index: 2147483647; display: flex; align-items: center; gap: 15px; min-width: 300px; border: 1px solid #eee; animation: slideDown 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards; cursor: pointer;`;
 
-    toast.innerHTML = `<div style="font-size: 24px; background: #f0f2f5; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">👤</div>
-        <div style="flex: 1; overflow: hidden;"><div style="font-weight: 800; font-size: 0.9em; color: #111;">${senderName}</div><div style="font-size: 0.82em; color: #666; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${text}</div></div>
-        <div style="color: #25D366; font-size: 12px;">●</div>`;
+    toast.innerHTML = `<div style="font-size: 20px; background: #eef2ff; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">💬</div>
+        <div style="flex: 1; overflow: hidden;"><div style="font-weight: 800; font-size: 0.85rem; color: #007bff;">${senderName}</div><div style="font-size: 0.8rem; color: #666; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${text}</div></div>`;
 
     toast.onclick = () => { openChat(senderEmail, senderName); toast.remove(); };
     document.body.appendChild(toast);
@@ -221,7 +237,6 @@ window.saveProfile = async function() {
     searchUsers();
 }
 
-// --- DELETE MESSAGE ---
 window.deleteMsg = async function(msgId) {
     if (confirm("Delete this message?")) {
         try {
@@ -232,15 +247,9 @@ window.deleteMsg = async function(msgId) {
     }
 }
 
-// --- FIXED BLOCK USER ---
 window.blockUser = async function() {
-    // Modal se email read karna (ID: view-email)
     const emailToBlock = document.getElementById('view-email').innerText.trim();
-    
-    if (!emailToBlock) {
-        alert("Unable to find user email.");
-        return;
-    }
+    if (!emailToBlock) { alert("Unable to find user email."); return; }
 
     if (confirm(`Block ${emailToBlock}?`)) {
         try {
@@ -249,7 +258,6 @@ window.blockUser = async function() {
             });
             alert("✅ User Blocked!");
             closeProfile();
-            // Agar chat open hai usi user ki, toh close kar do
             if(chatWithEmail === emailToBlock) closeChat();
         } catch (error) {
             console.error("Block Error:", error);
@@ -258,7 +266,6 @@ window.blockUser = async function() {
     }
 }
 
-// --- UNBLOCK USER ---
 window.unblockUser = async function(emailToUnblock) {
     await updateDoc(doc(db, "users", currentUserEmail), {
         blockedUsers: arrayRemove(emailToUnblock)
@@ -267,7 +274,6 @@ window.unblockUser = async function(emailToUnblock) {
     openBlockList(); 
 }
 
-// --- OPEN BLOCK LIST ---
 window.openBlockList = async function() {
     const userDoc = await getDoc(doc(db, "users", currentUserEmail));
     const blockedList = userDoc.data().blockedUsers || [];
@@ -317,14 +323,17 @@ window.searchUsers = async function() {
     });
 }
 
+// --- UPDATED LOAD INBOX (RESETS BADGE) ---
 window.loadInbox = async function() {
-    const dot = document.getElementById('nav-notify-dot');
-    if(dot) dot.style.display = 'none';
+    unreadMessagesCount = 0; // Reset counter
+    updateNotificationBadge(0); // Hide badge
     
     document.getElementById('search-section').style.display = 'none';
     document.getElementById('inbox-section').style.display = 'block';
+    
+    // Sidebar Active Classes
+    document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
     document.getElementById('btn-inbox').classList.add('active');
-    document.getElementById('btn-search').classList.remove('active');
 
     const inboxList = document.getElementById('inbox-list');
     inboxList.innerHTML = "";
@@ -375,8 +384,10 @@ window.closeProfile = () => { document.getElementById('profile-modal').style.dis
 
 window.openChat = function(email, name) {
     chatWithEmail = email;
-    const dot = document.getElementById('nav-notify-dot');
-    if(dot) dot.style.display = 'none';
+    // Jab chat open ho, badge hide ho jaye agar usi user ka message hai
+    unreadMessagesCount = 0;
+    updateNotificationBadge(0);
+
     document.getElementById('chat-with-name').innerText = name;
     document.getElementById('chat-box').style.display = 'flex';
     loadMessages();
@@ -481,6 +492,14 @@ function setupUserDashboard(userData) {
     document.getElementById('my-profile-dept').innerText = userData.dept || userData.branch || "Student";
 }
 
+// Search function to update Sidebar active state
+window.showSearch = function() {
+    document.getElementById('search-section').style.display = 'block';
+    document.getElementById('inbox-section').style.display = 'none';
+    document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+    document.getElementById('btn-search').classList.add('active');
+};
+
 // --- LINKING ALL FUNCTIONS TO WINDOW ---
 window.sendOTP = sendOTP;
 window.verifyOTP = verifyOTP;
@@ -503,3 +522,4 @@ window.closeChat = closeChat;
 window.viewProfile = viewProfile;
 window.closeProfile = closeProfile;
 window.closeEditModal = closeEditModal;
+window.showSearch = showSearch;

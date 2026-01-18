@@ -149,3 +149,106 @@ input:focus {
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
 }
+
+/* =======================================================
+   DASHBOARD & NOTIFICATION ENHANCEMENTS (NEW ADDITIONS)
+   ======================================================= */
+
+/* Blue Header Profile Area (Image Ref) */
+.sidebar-user-profile {
+    background: linear-gradient(180deg, #007bff 0%, #0056b3 100%) !important;
+    padding: 35px 20px;
+    border-bottom-right-radius: 30px;
+    margin-bottom: 20px;
+    color: white !important;
+}
+
+/* Sidebar Navigation Updates */
+.nav-btn {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 20px;
+    margin: 5px 15px;
+    border-radius: 15px;
+    color: #4a5568;
+    background: transparent;
+    transition: all 0.3s ease;
+    border: none;
+}
+
+.nav-btn:hover {
+    background: #edf2f7;
+    color: #007bff;
+    transform: translateX(5px);
+}
+
+.nav-btn.active {
+    background: #e8f0fe !important;
+    color: #007bff !important;
+    font-weight: bold;
+}
+
+/* Notification Section Badge */
+#btn-inbox { position: relative; }
+
+#nav-notify-dot {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    background: #ff3b30;
+    color: white;
+    font-size: 10px;
+    min-width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid white;
+    font-weight: bold;
+}
+
+/* Dashboard User Cards Grid */
+#users-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 15px;
+    padding: 20px;
+}
+
+/* Message Capsule Notification */
+#notification-container div {
+    background: white !important;
+    border-radius: 50px !important; /* Capsule Shape */
+    padding: 10px 25px !important;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1) !important;
+    border-left: none !important;
+    border: 1px solid #e2e8f0 !important;
+}
+
+/* Profile Modal Action Buttons */
+#start-chat-btn {
+    background: #007bff;
+    border-radius: 15px;
+    margin-top: 15px;
+}
+
+#block-user-btn {
+    background: #fff5f5 !important;
+    color: #e53e3e !important;
+    border-radius: 15px;
+    margin-top: 8px;
+}
+/* Selection Mode Style */
+.msg-selected {
+    border: 2px solid #ff4d4d !important;
+    transform: scale(0.95);
+    opacity: 0.8;
+}
+
+/* Chat List Remove Button hover */
+.user-card button:hover {
+    color: #ff4757 !important;
+    transform: scale(1.2);
+}
