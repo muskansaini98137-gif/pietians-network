@@ -44,6 +44,12 @@ function listenForNewMessages() {
         snapshot.docChanges().forEach(async (change) => {
             if (change.type === "added") {
                 const msg = change.data();
+
+                // BLOCK CHECK: Agar sender meri block list mein hai toh notification mat dikhao
+                const myDoc = await getDoc(doc(db, "users", currentUserEmail));
+                const myBlocks = myDoc.data().blockedUsers || [];
+                if (myBlocks.includes(msg.sender)) return;
+
                 let msgTime = msg.timestamp?.toMillis ? msg.timestamp.toMillis() : Date.now();
 
                 if (msgTime > sessionStartTime) {
@@ -116,12 +122,11 @@ function startOTPTimer(seconds) {
     }, 1000);
 }
 
-// --- 4. LOGIN & SIGNUP (UPDATED WITH DOMAIN CHECK) ---
+// --- 4. LOGIN & SIGNUP ---
 window.handleLogin = async function() {
     const email = document.getElementById('login-email').value.trim();
     if (!email) return alert("Please enter email");
 
-    // NEW: Domain check for login
     if (!email.endsWith("@pietgroup.co.in")) {
         alert("❌ Access Denied: Please use your @pietgroup.co.in email.");
         return;
@@ -129,12 +134,31 @@ window.handleLogin = async function() {
 
     const userDoc = await getDoc(doc(db, "users", email));
     if (userDoc.exists()) {
+        generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
+        otpExpiryTime = Date.now() + 60000; 
         currentUserEmail = email;
+
+        emailjs.send('service_vc6a4pl', 'template_z4oiav3', { email: email, otp: generatedOTP, time: "60 Sec" })
+            .then(() => { 
+                alert("🚀 Login OTP Sent!"); 
+                document.getElementById('login-otp-group').style.display = 'block'; 
+                startOTPTimer(60); 
+            })
+            .catch((err) => { alert("Failed to send OTP."); console.error(err); });
+    } else { alert("❌ Account not found! Please Sign Up."); }
+}
+
+window.verifyLoginOTP = async function() {
+    const enteredOTP = document.getElementById('login-otp-input').value;
+    if (Date.now() > otpExpiryTime) return alert("❌ OTP Expired!");
+
+    if (enteredOTP === generatedOTP) {
         localStorage.setItem("verifiedEmail", currentUserEmail);
+        const userDoc = await getDoc(doc(db, "users", currentUserEmail));
         setupUserDashboard(userDoc.data());
         searchUsers();
         listenForNewMessages();
-    } else { alert("❌ Account not found! Please Sign Up."); }
+    } else { alert("❌ Wrong OTP!"); }
 }
 
 window.sendOTP = async function() {
@@ -142,7 +166,6 @@ window.sendOTP = async function() {
     const email = emailInput.value.trim();
     if (!email.includes('@')) return alert("Enter valid email");
 
-    // NEW: Domain check for signup
     if (!email.endsWith("@pietgroup.co.in")) {
         alert("❌ Error: Only @pietgroup.co.in emails are allowed for registration.");
         return;
@@ -151,7 +174,7 @@ window.sendOTP = async function() {
     const userDoc = await getDoc(doc(db, "users", email));
     if (userDoc.exists()) { alert("Already registered! Please Login."); return; }
     
-    generatedOTP = Math.floor(1000 + Math.random() * 9000).toString();
+    generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
     otpExpiryTime = Date.now() + 60000; 
 
     emailjs.send('service_vc6a4pl', 'template_z4oiav3', { email: email, otp: generatedOTP, time: "60 Sec" })
@@ -198,7 +221,7 @@ window.saveProfile = async function() {
     searchUsers();
 }
 
-// --- NEW FEATURE: DELETE MESSAGE ---
+// --- DELETE MESSAGE ---
 window.deleteMsg = async function(msgId) {
     if (confirm("Delete this message?")) {
         try {
@@ -209,7 +232,7 @@ window.deleteMsg = async function(msgId) {
     }
 }
 
-// --- NEW FEATURE: BLOCK USER ---
+// --- BLOCK USER ---
 window.blockUser = async function() {
     if (!chatWithEmail) return;
     if (confirm(`Block ${chatWithEmail}?`)) {
@@ -221,7 +244,7 @@ window.blockUser = async function() {
     }
 }
 
-// --- NEW FEATURE: UNBLOCK USER ---
+// --- UNBLOCK USER ---
 window.unblockUser = async function(emailToUnblock) {
     await updateDoc(doc(db, "users", currentUserEmail), {
         blockedUsers: arrayRemove(emailToUnblock)
@@ -230,7 +253,7 @@ window.unblockUser = async function(emailToUnblock) {
     openBlockList(); 
 }
 
-// --- NEW FEATURE: OPEN BLOCK LIST ---
+// --- OPEN BLOCK LIST ---
 window.openBlockList = async function() {
     const userDoc = await getDoc(doc(db, "users", currentUserEmail));
     const blockedList = userDoc.data().blockedUsers || [];
@@ -352,6 +375,7 @@ window.sendMessage = async function() {
     const text = input.value.trim();
     if (!text) return;
 
+    // CHECK: Kya samne wale ne mujhe block kiya hai?
     const otherUserDoc = await getDoc(doc(db, "users", chatWithEmail));
     const otherBlockedList = otherUserDoc.data().blockedUsers || [];
     if (otherBlockedList.includes(currentUserEmail)) {
@@ -380,6 +404,7 @@ function loadMessages() {
             const m = docSnap.data();
             const msgId = docSnap.id;
 
+            // FILTER: Blocked user ke messages hide karo
             if (myBlocks.includes(m.sender)) return;
 
             if ((m.sender === currentUserEmail && m.receiver === chatWithEmail) || (m.sender === chatWithEmail && m.receiver === currentUserEmail)) {
@@ -418,7 +443,6 @@ window.openEditProfile = async function() {
 
 window.closeEditModal = () => { document.getElementById('edit-profile-modal').style.display = 'none'; }
 
-// --- UPDATED UPDATE PROFILE FUNCTION ---
 window.updateProfile = async function() {
     const updatedData = {
         name: document.getElementById('edit-name').value, 
@@ -449,6 +473,7 @@ function setupUserDashboard(userData) {
 window.sendOTP = sendOTP;
 window.verifyOTP = verifyOTP;
 window.handleLogin = handleLogin;
+window.verifyLoginOTP = verifyLoginOTP;
 window.saveProfile = saveProfile;
 window.searchUsers = searchUsers;
 window.loadInbox = loadInbox;
@@ -460,3 +485,4 @@ window.unblockUser = unblockUser;
 window.openBlockList = openBlockList;
 window.closeBlockModal = closeBlockModal;
 window.openEditProfile = openEditProfile;
+window.logout = logout;

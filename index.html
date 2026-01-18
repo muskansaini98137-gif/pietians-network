@@ -209,6 +209,7 @@
                 </button>
 
                 <div style="margin-top: auto; border-top: 1px solid #f0f0f0; padding-top: 20px;">
+                    <button onclick="openBlockList()" class="nav-btn"><span>🚫</span> Block List</button>
                     <button onclick="openEditProfile()" class="nav-btn"><span>⚙️</span> Settings</button>
                     <button onclick="logout()" class="nav-btn" style="color: #ff3b30;"><span>🚪</span> Logout</button>
                 </div>
@@ -222,7 +223,14 @@
                 <p style="color: #666; text-align:center;">Connect with your college mates.</p>
                 <label class="input-label">College Email</label>
                 <input type="email" id="login-email" placeholder="enter your register email">
-                <button onclick="handleLogin()" style="background: #007bff; color: white; width: 100%; border-radius: 12px; padding: 14px; border:none; cursor:pointer; font-weight:600;">Login to Account</button>
+                <button onclick="handleLogin()" style="background: #007bff; color: white; width: 100%; border-radius: 12px; padding: 14px; border:none; cursor:pointer; font-weight:600;">Get Login Code</button>
+                
+                <div id="login-otp-group" style="display:none; margin-top:20px;">
+                    <label class="input-label">Login Code</label>
+                    <input type="text" id="login-otp-input" placeholder="Enter OTP">
+                    <button onclick="verifyLoginOTP()" style="background: #28a745; color: white; width: 100%; border-radius: 12px; padding: 14px; border:none; cursor:pointer; font-weight:600;">Verify & Login</button>
+                </div>
+
                 <p style="margin-top:15px; font-size:0.9em; text-align: center;">
                     New here? <a href="javascript:void(0)" onclick="showSignup()" style="color:#007bff; font-weight:bold; text-decoration: none;">Create Account</a>
                 </p>
@@ -327,6 +335,7 @@
                 <b>💡 Skills:</b> <span id="view-skills"></span>
             </div>
             <button id="start-chat-btn" style="background:#007bff; color:white; width:100%; padding:15px; margin-top:20px; font-weight:bold; border-radius:15px; border:none; cursor:pointer;">💬 Message Now</button>
+            <button onclick="blockUser()" style="background:#fff1f0; color:#ff4d4f; width:100%; margin-top:10px; border:none; padding:10px; cursor:pointer; border-radius:10px;">🚫 Block User</button>
             <button onclick="closeProfile()" style="background:none; color:#aaa; width:100%; margin-top:10px; border:none; cursor:pointer;">Close</button>
         </div>
     </div>
@@ -341,6 +350,14 @@
             <input type="text" id="edit-skills" placeholder="Skills">
             <button onclick="updateProfile()" style="background:#28a745; color: white; width: 100%; padding: 12px; border-radius: 12px; border:none; cursor:pointer; font-weight:600;">Save Changes</button>
             <button onclick="closeEditModal()" style="background:none; color: #888; width: 100%; margin-top: 10px; border:none; cursor:pointer;">Cancel</button>
+        </div>
+    </div>
+
+    <div id="block-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; z-index:12000; justify-content:center; align-items:center; backdrop-filter: blur(8px); background: rgba(0,0,0,0.2);">
+        <div style="background:white; padding:30px; border-radius:30px; width:350px;">
+            <h2 style="text-align:center;">Blocked Users</h2>
+            <div id="block-list-container" style="max-height:300px; overflow-y:auto; margin:20px 0;"></div>
+            <button onclick="closeBlockModal()" style="width:100%; padding:12px; background:#f0f2f5; border:none; border-radius:12px; cursor:pointer;">Close</button>
         </div>
     </div>
 
@@ -390,10 +407,10 @@
 
             expiryInterval = setInterval(() => {
                 timeLeft--;
-                display.innerText = timeLeft;
+                if(display) display.innerText = timeLeft;
                 if(timeLeft <= 0) {
                     clearInterval(expiryInterval);
-                    display.innerText = "0";
+                    if(display) display.innerText = "0";
                     timerBox.style.background = "#ffdcdc";
                     alert("OTP Expired! Please click Resend to get a new code.");
                 }
@@ -406,18 +423,18 @@
             const timerText = document.getElementById('timer-text');
             const secondsSpan = document.getElementById('seconds');
             
-            resendLink.style.display = 'none';
-            timerText.style.display = 'inline';
+            if(resendLink) resendLink.style.display = 'none';
+            if(timerText) timerText.style.display = 'inline';
             
             let timeLeft = 30;
             const timer = setInterval(() => {
                 timeLeft--;
-                secondsSpan.innerText = timeLeft;
+                if(secondsSpan) secondsSpan.innerText = timeLeft;
                 if (timeLeft <= 0) {
                     clearInterval(timer);
-                    resendLink.style.display = 'inline';
-                    timerText.style.display = 'none';
-                    secondsSpan.innerText = 30;
+                    if(resendLink) resendLink.style.display = 'inline';
+                    if(timerText) timerText.style.display = 'none';
+                    if(secondsSpan) secondsSpan.innerText = 30;
                 }
             }, 1000);
         };
