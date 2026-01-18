@@ -116,10 +116,17 @@ function startOTPTimer(seconds) {
     }, 1000);
 }
 
-// --- 4. LOGIN & SIGNUP ---
+// --- 4. LOGIN & SIGNUP (UPDATED WITH DOMAIN CHECK) ---
 window.handleLogin = async function() {
     const email = document.getElementById('login-email').value.trim();
     if (!email) return alert("Please enter email");
+
+    // NEW: Domain check for login
+    if (!email.endsWith("@pietgroup.co.in")) {
+        alert("❌ Access Denied: Please use your @pietgroup.co.in email.");
+        return;
+    }
+
     const userDoc = await getDoc(doc(db, "users", email));
     if (userDoc.exists()) {
         currentUserEmail = email;
@@ -134,6 +141,12 @@ window.sendOTP = async function() {
     const emailInput = document.getElementById('email');
     const email = emailInput.value.trim();
     if (!email.includes('@')) return alert("Enter valid email");
+
+    // NEW: Domain check for signup
+    if (!email.endsWith("@pietgroup.co.in")) {
+        alert("❌ Error: Only @pietgroup.co.in emails are allowed for registration.");
+        return;
+    }
     
     const userDoc = await getDoc(doc(db, "users", email));
     if (userDoc.exists()) { alert("Already registered! Please Login."); return; }
