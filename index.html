@@ -470,6 +470,19 @@
             const input = document.getElementById('chat-input');
             if(input) { input.value += emoji; input.focus(); }
         };
+        
+        // Modal helpers
+        window.closeProfile = function() {
+            document.getElementById('profile-modal').style.display = 'none';
+        };
+        
+        window.closeBlockModal = function() {
+            document.getElementById('block-modal').style.display = 'none';
+        };
+
+        window.closeEditModal = function() {
+            document.getElementById('edit-profile-modal').style.display = 'none';
+        };
     </script>
 </body>
 </html>

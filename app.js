@@ -45,7 +45,7 @@ function listenForNewMessages() {
             if (change.type === "added") {
                 const msg = change.data();
 
-                // BLOCK CHECK: Agar sender meri block list mein hai toh notification mat dikhao
+                // BLOCK CHECK
                 const myDoc = await getDoc(doc(db, "users", currentUserEmail));
                 const myBlocks = myDoc.data().blockedUsers || [];
                 if (myBlocks.includes(msg.sender)) return;
@@ -232,15 +232,29 @@ window.deleteMsg = async function(msgId) {
     }
 }
 
-// --- BLOCK USER ---
+// --- FIXED BLOCK USER ---
 window.blockUser = async function() {
-    if (!chatWithEmail) return;
-    if (confirm(`Block ${chatWithEmail}?`)) {
-        await updateDoc(doc(db, "users", currentUserEmail), {
-            blockedUsers: arrayUnion(chatWithEmail)
-        });
-        alert("User Blocked!");
-        closeChat();
+    // Modal se email read karna (ID: view-email)
+    const emailToBlock = document.getElementById('view-email').innerText.trim();
+    
+    if (!emailToBlock) {
+        alert("Unable to find user email.");
+        return;
+    }
+
+    if (confirm(`Block ${emailToBlock}?`)) {
+        try {
+            await updateDoc(doc(db, "users", currentUserEmail), {
+                blockedUsers: arrayUnion(emailToBlock)
+            });
+            alert("✅ User Blocked!");
+            closeProfile();
+            // Agar chat open hai usi user ki, toh close kar do
+            if(chatWithEmail === emailToBlock) closeChat();
+        } catch (error) {
+            console.error("Block Error:", error);
+            alert("Failed to block user.");
+        }
     }
 }
 
@@ -260,12 +274,12 @@ window.openBlockList = async function() {
     const blockContainer = document.getElementById('block-list-container');
     
     if (blockContainer) {
-        blockContainer.innerHTML = blockedList.length ? "" : "<p>No blocked users</p>";
+        blockContainer.innerHTML = blockedList.length ? "" : "<p style='text-align:center; color:#666;'>No blocked users</p>";
         blockedList.forEach(email => {
             blockContainer.innerHTML += `
-                <div style="display:flex; justify-content:space-between; align-items:center; padding:10px; border-bottom:1px solid #eee;">
-                    <span>${email}</span>
-                    <button onclick="unblockUser('${email}')" style="background:#ff4757; color:white; border:none; padding:5px 10px; border-radius:5px; cursor:pointer;">Unblock</button>
+                <div style="display:flex; justify-content:space-between; align-items:center; padding:12px; border-bottom:1px solid #eee;">
+                    <span style="font-size:0.9rem; color:#333;">${email}</span>
+                    <button onclick="unblockUser('${email}')" style="background:#ff4757; color:white; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; font-size:0.8rem;">Unblock</button>
                 </div>`;
         });
     }
@@ -375,7 +389,6 @@ window.sendMessage = async function() {
     const text = input.value.trim();
     if (!text) return;
 
-    // CHECK: Kya samne wale ne mujhe block kiya hai?
     const otherUserDoc = await getDoc(doc(db, "users", chatWithEmail));
     const otherBlockedList = otherUserDoc.data().blockedUsers || [];
     if (otherBlockedList.includes(currentUserEmail)) {
@@ -404,7 +417,6 @@ function loadMessages() {
             const m = docSnap.data();
             const msgId = docSnap.id;
 
-            // FILTER: Blocked user ke messages hide karo
             if (myBlocks.includes(m.sender)) return;
 
             if ((m.sender === currentUserEmail && m.receiver === chatWithEmail) || (m.sender === chatWithEmail && m.receiver === currentUserEmail)) {
@@ -469,7 +481,7 @@ function setupUserDashboard(userData) {
     document.getElementById('my-profile-dept').innerText = userData.dept || userData.branch || "Student";
 }
 
-// --- Exporting functions ---
+// --- LINKING ALL FUNCTIONS TO WINDOW ---
 window.sendOTP = sendOTP;
 window.verifyOTP = verifyOTP;
 window.handleLogin = handleLogin;
@@ -486,3 +498,8 @@ window.openBlockList = openBlockList;
 window.closeBlockModal = closeBlockModal;
 window.openEditProfile = openEditProfile;
 window.logout = logout;
+window.openChat = openChat;
+window.closeChat = closeChat;
+window.viewProfile = viewProfile;
+window.closeProfile = closeProfile;
+window.closeEditModal = closeEditModal;
